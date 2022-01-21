@@ -134,12 +134,13 @@ unique(layers_df.sum)
 end
 
 # Verify the occupancy ratio & pixel count
-tmp = describe(layers_df, :min, :max, :nmissing)
-tmp.n = nrow(layers_df) .- tmp.nmissing
-@pipe tmp |>
-    filter(:variable => in([:sp1, :sp2, :sp3]), _) |>
-    insertcols!(_, :ratio => _.n ./ nrow(layers_df)) |>
-    insertcols!(_, :equal_layer => _.n .== length.(layers))
+@chain layers_df begin
+    describe(:min, :max, :nmissing)
+    @rtransform(:n = nrow(layers_df) - :nmissing)
+    @rsubset(String(:variable) in ["sp1", "sp2", "sp3"])
+    @rtransform(:ratio = :n / nrow(layers_df))
+    @transform(:equal_layer = :n .== length.(layers))
+end
 # Seems reasonable
 
 ## Combine with environmental data
