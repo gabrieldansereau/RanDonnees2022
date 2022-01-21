@@ -49,7 +49,7 @@ spe_select <- spe %>%
 )
 
 # Export
-# write_csv(head(var_select, 5), "../data/infos_ebird.csv")
+write_csv(head(var_select, 5), "./data/warblers_example.csv")
 
 ## Select species with balanced observations
 
@@ -74,7 +74,7 @@ tibble(sp = names(spe)[-c(1:3)], sum = colSums(spe)[-c(1:3)]) %>%
 )
 
 # Export
-# write_csv(new_glossary, "../data/glossary.csv")
+write_csv(new_glossary, "./data/warblers_glossary.csv")
 
 ## Full dataset
 
@@ -86,4 +86,4 @@ tibble(sp = names(spe)[-c(1:3)], sum = colSums(spe)[-c(1:3)]) %>%
 )
 
 # Export
-# write_csv(dataset, "../data/dataset.csv")
+write_csv(dataset, "./data/warblers_dataset.csv")
