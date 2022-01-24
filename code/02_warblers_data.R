@@ -56,9 +56,8 @@ write_csv(head(var_example, 5), "./data/warblers_example.csv")
 # Load name glossary
 glossary_env <- read_csv("~/github/betadiversity-hotspots/data/proc/glossary.csv") %>%
   filter(type != "species")
-glossary_spe <- read_csv("~/github/PoisotLab/betadiversity-forecasts/data/output/species_list.csv") %>%
-  rename(variable = id, full_name = species, description = common_name) %>%
-  mutate(type = "species", .after = variable)
+glossary_spe <- read_csv("~/github/betadiversity-hotspots/data/proc/glossary.csv") %>%
+  filter(type == "species")
 glossary_spe
 glossary_env
 
@@ -74,7 +73,7 @@ tibble(sp = names(spe)[-c(1:3)], sum = colSums(spe)[-c(1:3)]) %>%
 selected_species <- c(
   # "sp10", # Pine warbler, 0.366
   # "sp18", # Black-throated Blue warbler, 0.587
-  "sp29", # Canada warbler, 0.556
+  "sp30", # Canada warbler, 0.556
   "sp28", # Cape May Warbler, 0.561
   "sp3" # Yellow warbler, 0.738
 )

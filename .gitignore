@@ -3,4 +3,5 @@
 .RData
 .Ruserdata
 *.Rproj
-data/layers/
+data/layers/*_full.tif
+data/layers/prev_*

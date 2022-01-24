@@ -72,7 +72,7 @@ prepare_rasters <- function(target, type, year=2020) {
 
   # Rename variables
   if (type == "env") {
-    names(rasters) <- c("site", "lon", "lat", paste0("wc", 1:19), paste0("lc", 1:14))
+    names(rasters) <- c("site", "lon", "lat", paste0("wc", 1:19), paste0("lc", 1:10))
   } else if (type == "spe") {
     names(rasters) <- c("site", "lon", "lat", paste0("sp", 1:(nlayers(rasters)-3)))
   } else {
@@ -81,7 +81,11 @@ prepare_rasters <- function(target, type, year=2020) {
 
   # Remove empty species rasters (species not present in subset)
   if (type == "spe") {
-    (inds_empty <- which(is.na(minValue(rasters))))
+    keep_or_not <- rep(0, nlayers(rasters))
+    for (i in 1:nlayers(rasters)) {
+       keep_or_not[i] <- length(unique(rasters[[i]])) > 0
+    }
+    (inds_empty <- which(keep_or_not < 1))
     if (length(inds_empty) > 0) {
       message("Removing ", length(inds_empty), " species without observations")
       rasters <- rasters[[-inds_empty]]
@@ -118,12 +122,12 @@ prepare_tibbles <- function(env_stack, spe_stack) {
   }
 
   # Remove variables which are all zeros at species occurrences
-  env_withoutvalues <- names(which(colSums(env) == 0))
-  if (length(env_withoutvalues) > 0) {
-    message("Removing ", length(env_withoutvalues), " variable without values")
-    env <- dplyr::select(env, -all_of(env_withoutvalues))
-    env_full <- dplyr::select(env_full, -all_of(env_withoutvalues))
-  }
+  # env_withoutvalues <- names(which(colSums(env) == 0))
+  # if (length(env_withoutvalues) > 0) {
+  #   message("Removing ", length(env_withoutvalues), " variable without values")
+  #   env <- dplyr::select(env, -all_of(env_withoutvalues))
+  #   env_full <- dplyr::select(env_full, -all_of(env_withoutvalues))
+  # }
 
   # Remove spatial variables
   xnames <- names(select(env, -c("site", "lon", "lat")))
