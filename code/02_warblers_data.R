@@ -1,7 +1,7 @@
 ## Extract data
 
 # Required functions
-source("required.R")
+source("code/required.R")
 
 # Define target
 target <- "QC"
@@ -22,14 +22,14 @@ spe <- data_list$spe
 ## Summary data set for mentor presentation
 
 # Prepare datasets
-env_select <- env %>%
+env_example <- env %>%
   select(site, lon, lat, wc1, wc6, wc12, lc1, lc3, lc6)
-spe_select <- spe %>%
+spe_example <- spe %>%
   select(site, sp1, sp23, sp26)
 
 # Make pretty summary dataset
-(var_select <- env_select %>%
-  left_join(spe_select) %>%
+(var_example <- env_example %>%
+  left_join(spe_example) %>%
   select(site, lon, lat, sp1, sp23, sp26, everything()) %>%
   mutate(wc1 = round(wc1/10, digits=3),
          wc6 = round(wc6/10, digits=3),
@@ -49,28 +49,45 @@ spe_select <- spe %>%
 )
 
 # Export
-write_csv(head(var_select, 5), "./data/warblers_example.csv")
+write_csv(head(var_example, 5), "./data/warblers_example.csv")
 
 ## Select species with balanced observations
 
 # Load name glossary
-glossary <- read_csv("~/github/betadiversity-hotspots/data/proc/glossary.csv")
+glossary_env <- read_csv("~/github/betadiversity-hotspots/data/proc/glossary.csv") %>%
+  filter(type != "species")
+glossary_spe <- read_csv("~/github/PoisotLab/betadiversity-forecasts/data/output/species_list.csv") %>%
+  rename(variable = id, full_name = species, description = common_name) %>%
+  mutate(type = "species", .after = variable)
+glossary_spe
+glossary_env
 
 # Check balance of observations
 tibble(sp = names(spe)[-c(1:3)], sum = colSums(spe)[-c(1:3)]) %>%
   mutate(perc = sum/nrow(spe)) %>%
   arrange(desc(perc)) %>%
   rename(variable = sp) %>%
-  left_join(glossary) %>%
+  left_join(glossary_spe) %>%
   print(n = Inf)
 
+# Choose species
+selected_species <- c(
+  # "sp10", # Pine warbler, 0.366
+  # "sp18", # Black-throated Blue warbler, 0.587
+  "sp29", # Canada warbler, 0.556
+  "sp28", # Cape May Warbler, 0.561
+  "sp3" # Yellow warbler, 0.738
+)
+plot(spe_stack[[selected_species]])
+
 # Adapt glossary
-(new_glossary <- glossary %>%
-  filter(type == "species") %>%
-  filter(variable %in% c("sp1", "sp23", "sp26")) %>%
+(new_glossary <- glossary_spe %>%
+  filter(variable == selected_species[1]) %>%
+  bind_rows(filter(glossary_spe, variable == selected_species[2])) %>%
+  bind_rows(filter(glossary_spe, variable == selected_species[3])) %>%
   mutate(variable = c("sp1", "sp2", "sp3")) %>%
-  bind_rows(filter(glossary, type == "climate")) %>%
-  bind_rows(filter(glossary, type == "landcover"))
+  bind_rows(filter(glossary_env, type == "climate")) %>%
+  bind_rows(filter(glossary_env, type == "landcover"))
 )
 
 # Export
@@ -78,11 +95,16 @@ write_csv(new_glossary, "./data/warblers_glossary.csv")
 
 ## Full dataset
 
-# Select right species & prepare dataset
-(dataset <- env %>%
-  left_join(spe_select) %>%
-  select(site, lon, lat, sp1, sp23, sp26, everything()) %>%
-  rename(sp2 = sp23, sp3 = sp26)
+# Select right species
+spe_selected <- spe %>%
+  select(site, lon, lat, selected_species) %>%
+  rename(sp1 = 4, sp2 = 5, sp3 = 6)
+spe_selected
+
+# Prepare full dataset
+(dataset <- spe_selected %>%
+  left_join(env) %>%
+  select(site, lon, lat, everything())
 )
 
 # Export
