@@ -49,24 +49,18 @@ prepare_rasters <- function(target, type, year=2020) {
   }
 
   # Select raster files
-  repo_path <- "~/github/PoisotLab/betadiversity-forecasts/"
   if (type == "env") {
     # Environmental files
     files <- list(
-      here(repo_path, "data", "species", "spatial_data.tif"), # spatial data
-      here(repo_path, "data", "bioclim", paste0("BIO_", year, ".tif")), # climate
-      here(repo_path, "data", "landcover", paste0("landcover_", year, ".tif")) # land cover
+      here("data", "layers", "warblers_spatial.tif"), # spatial data
+      here("data", "layers", "warblers_climate.tif"), # climate
+      here("data", "layers", "warblers_landcover.tif") # land cover
     )
   } else if (type == "spe") {
     # Species files
     files <- list(
-      here(repo_path, "data", "species", "spatial_data.tif"),
-      here(repo_path, "data", "species", "ebird_distributions.tif")
-    )
-  } else {
-    # LCBD values (useful in other script)
-    files <- list(
-      here(repo_path, "data", "lcbd", paste0(tolower(target), "_lcbd_2020.tif"))
+      here("data", "layers", "warblers_spatial.tif"),
+      here("data", "layers", "warblers_distributions.tif")
     )
   }
 
