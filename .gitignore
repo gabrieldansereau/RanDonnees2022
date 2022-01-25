@@ -4,4 +4,4 @@
 .Ruserdata
 *.Rproj
 data/layers/*_full.tif
-data/layers/prev_*
+data/layers/full_*.tif
